@@ -1,10 +1,10 @@
-package org.example.service;
+package org.example.Repository;
 
 import org.example.model.Product;
 
 import java.util.List;
 
-public interface IProductService {
+public interface IProductRepository {
     void addProduct(Product product);
     void updateProduct(Product product);
     List<Product> getProducts();

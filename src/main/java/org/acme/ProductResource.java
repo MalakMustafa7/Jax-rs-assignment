@@ -2,50 +2,74 @@ package org.acme;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import org.example.service.IProductService;
+import  jakarta.ws.rs.core.Response;
+import org.example.Repository.IProductRepository;
 import org.example.model.Product;
-import org.example.service.ProductService;
+import org.example.Repository.ProductRepository;
 
 import java.util.List;
+import java.util.Map;
 
 @Path("/products")
 @Produces(MediaType.APPLICATION_JSON)
 public class ProductResource {
-    private IProductService productService = new ProductService();
+    private IProductRepository productRepository = new ProductRepository();
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Product addProduct(Product product){
-        productService.addProduct(product);
-        return product;
+    public Response addProduct(Product product){
+        productRepository.addProduct(product);
+        return Response.status(Response.Status.CREATED)
+                .entity(product)
+                .build();
     }
 
     @GET
-    public List<Product> getAllProducts(){
-       return productService.getProducts();
+    public Response getAllProducts(){
+
+        List<Product> products= productRepository.getProducts();
+        return Response.ok(products).build();
     }
 
     @GET()
     @Path("/{id}")
-    public Product getProduct(@PathParam("id")int id){
-        return productService.getProductById(id);
+    public Response getProduct(@PathParam("id")int id){
+        try {
+            Product product = productRepository.getProductById(id);
+           return Response.ok(product).build();
+        }catch (NotFoundException ex){
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", ex.getMessage()))
+                    .build();
+        }
     }
 
     @PUT()
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Product updateProduct(Product product){
-        productService.updateProduct(product);
-        return product;
+    public Response updateProduct(@PathParam("id") int id,Product product){
+        try {
+            product.setId(id);
+            productRepository.updateProduct(product);
+            return Response.ok(product).build();
+        }catch (NotFoundException ex){
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", ex.getMessage()))
+                    .build();
+        }
+
     }
 
     @DELETE
     @Path("/{id}")
-    public String deleteProduct(@PathParam("id") int id) {
-       boolean removed= productService.deleteProduct(id);
+    public Response deleteProduct(@PathParam("id") int id) {
+       boolean removed= productRepository.deleteProduct(id);
        if(removed){
-           return "Product deleted successfully";
+           return Response.ok(Map.of("message", "Product deleted successfully")).build();
        }else {
-           throw new NotFoundException("Product not found");
+           return Response.status(Response.Status.NOT_FOUND)
+                   .entity(Map.of("error", "Product not found"))
+                   .build();
        }
     }
 }

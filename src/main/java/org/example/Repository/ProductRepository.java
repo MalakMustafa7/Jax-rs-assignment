@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.Repository;
 
 import jakarta.ws.rs.NotFoundException;
 import org.example.model.Product;
@@ -6,7 +6,7 @@ import org.example.model.Product;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductService implements IProductService {
+public class ProductRepository implements IProductRepository {
    private static List<Product> products =  new ArrayList<>();
     private static int nextId = 1;
 
